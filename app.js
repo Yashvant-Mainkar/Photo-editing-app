@@ -1,158 +1,125 @@
-const audio = document.getElementById('audio');
-const playBtn = document.getElementById('play');
-const prevBtn = document.getElementById('prev');
-const nextBtn = document.getElementById('next');
-const trackTitle = document.getElementById('track-title');
-const img = document.getElementById('img');
+// 80% of storage used … If you run out, you can't create, edit and upload files. Get 100 GB of storage for ₹130.00 ₹0 for 1 month.
+let choose_img_Btn = document.querySelector(".choose_img button");
+let choose_Input = document.querySelector(".choose_img input");
+let imgSrc = document.querySelector(".view_img img");
+let filter_buttons = document.querySelectorAll(".icons_room button");
+let slider = document.querySelector(".slider input");
+let filter_name = document.querySelector(".filter_info .name");
+let slider_value = document.querySelector(".filter_info .value");
+let rotate_btns = document.querySelectorAll(".icons_room1 button");
+let reset = document.querySelector(".reset");
+let save = document.querySelector(".save");
+let brightness = 100,
+  contrast = 100,
+  saturate = 100,
+  invert = 0,
+  blur = 0,
+  rotate = 0,
+  flip_x = 1,
+  flip_y = 1;
 
+choose_img_Btn.addEventListener("click", () => choose_Input.click());
+choose_Input.addEventListener("change", () => {
+  let file = choose_Input.files[0];
+  if (!file) return;
+  imgSrc.src = URL.createObjectURL(file);
+  imgSrc.addEventListener("load", () => {
+    document.querySelector(".container").classList.remove("disabled");
+  });
+});
 
-const tracks = [
-    { 
-        title: 'Track 1', 
-        src: './mp3-now.com - Bon Iver  Holocene Lyrics_320kbps.mp3',
-        imgSrc : "./imges/image (1).jpg"
-     },
-    { 
-        title: 'Track 2', 
-        src: './mp3-now.com - IlluminatiAaveshamJithu MadhavanFahadh FaasilSushin ShyamDabzeeVinayak NazriyaAnwar Rasheed_320kbps.mp3',
-        imgSrc : "./imges/Anime JUJUTSU KAISEN Watch Online Free - Aniwave - Google Chrome 21-10-2023 01_01_01.png",
-     },
-    { 
-        title: 'Track 3', 
-        src: 'music/track3.mp3' ,
-        imgSrc : "./imges/Aniwave - Berserk Watch Anime Online - Google Chrome 03-09-2023 01_25_54.png"
+filter_buttons.forEach((element) => {
+  element.addEventListener("click", () => {
+    document.querySelector(".active").classList.remove("active");
+    element.classList.add("active");
+    filter_name.innerText = element.id;
+    if (element.id === "brightness") {
+      slider.max = "200";
+      slider.value = brightness;
+      slider_value.innerText = `${brightness}`;
+    } else if (element.id === "contrast") {
+      slider.max = "200";
+      slider.value = contrast;
+      slider_value.innerText = `${contrast}`;
+    } else if (element.id === "contrast") {
+      slider.max = "200";
+      slider.value = saturate;
+      slider_value.innerText = `${saturate}`;
+    } else if (element.id === "invert") {
+      slider.max = "100";
+      slider.value = invert;
+      slider_value.innerText = `${invert}`;
+    } else if (element.id === "blur") {
+      slider.max = "100";
+      slider.value = blur;
+      slider_value.innerText = `${blur}`;
     }
-];
-const volumeSlider = document.getElementById('volume-slider');
-
-volumeSlider.addEventListener('input', (e) => {
-    audio.volume = e.target.value;
-});
-const muteBtn = document.getElementById('mute');
-
-function toggleMute() {
-    audio.muted = !audio.muted;
-    muteBtn.textContent = audio.muted ? 'Unmute' : 'Mute';
-}
-
-muteBtn.addEventListener('click', toggleMute);
-const progressBar = document.getElementById('progress-bar');
-
-audio.addEventListener('timeupdate', () => {
-    const progress = (audio.currentTime / audio.duration) * 100;
-    progressBar.value = progress;
-});
-const currentTimeEl = document.getElementById('current-time');
-const durationEl = document.getElementById('duration');
-
-audio.addEventListener('loadedmetadata', () => {
-    const duration = formatTime(audio.duration);
-    durationEl.textContent = duration;
+  });
 });
 
-audio.addEventListener('timeupdate', () => {
-    const currentTime = formatTime(audio.currentTime);
-    currentTimeEl.textContent = currentTime;
+slider.addEventListener("input", () => {
+  slider_value.innerText = `${slider.value}%`;
+  let sliderState = document.querySelector(".icons_room .active");
+  if (sliderState.id === "brightness") {
+    brightness = slider.value;
+  } else if (sliderState.id === "contrast") {
+    contrast = slider.value;
+  } else if (sliderState.id === "saturate") {
+    saturate = slider.value;
+  } else if (sliderState.id === "invert") {
+    invert = slider.value;
+  } else if (sliderState.id === "blur") {
+    blur = slider.value;
+  }
+  imgSrc.style.filter = `brightness(${brightness}%) contrast(${contrast}%) saturate(${saturate}%) invert(${invert}%) blur(${blur}px)`;
 });
 
-function formatTime(seconds) {
-    const minutes = Math.floor(seconds / 60);
-    const secs = Math.floor(seconds % 60);
-    return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
-}
-const shuffleBtn = document.getElementById('shuffle');
-let isShuffling = false;
-
-function toggleShuffle() {
-    isShuffling = !isShuffling;
-    shuffleBtn.textContent = isShuffling ? 'Shuffle On' : 'Shuffle Off';
-}
-
-function nextTrack() {
-    if (isShuffling) {
-        currentTrackIndex = Math.floor(Math.random() * tracks.length);
-    } else {
-        currentTrackIndex = (currentTrackIndex + 1) % tracks.length;
+rotate_btns.forEach((element) => {
+  element.addEventListener("click", () => {
+    if (element.id === "rotate_left") {
+      rotate -= 90;
+    } else if (element.id === "rotate_right") {
+      rotate += 90;
+    } else if (element.id === "flip_x") {
+      flip_x = flip_x === 1 ? -1 : 1;
+    } else if (element.id === "flip_y") {
+      flip_y = flip_y === 1 ? -1 : 1;
     }
-    loadTrack(currentTrackIndex);
-    audio.play();
-    playBtn.textContent = 'Pause';
-}
 
-shuffleBtn.addEventListener('click', toggleShuffle);
-
-
-progressBar.addEventListener('input', (e) => {
-    const seekTime = (e.target.value / 100) * audio.duration;
-    audio.currentTime = seekTime;
-});
-const animationBar = document.getElementById('animation-bar');
-
-function playTrack() {
-    if (audio.paused) {
-        audio.play();
-        playBtn.textContent = 'Pause';
-        animationBar.classList.add('playing');
-    } else {
-        audio.pause();
-        playBtn.textContent = 'Play';
-        animationBar.classList.remove('playing');
-    }
-}
-
-audio.addEventListener('play', () => {
-    animationBar.classList.add('playing');
+    imgSrc.style.transform = `rotate(${rotate}deg) scale(${flip_x}, ${flip_y})`;
+  });
 });
 
-audio.addEventListener('pause', () => {
-    animationBar.classList.remove('playing');
+reset.addEventListener("click", () => {
+  brightness = "100";
+  saturate = "100";
+  contrast = "100";
+  invert = "0";
+  blur = "0";
+  rotate = 0;
+  flip_x = 1;
+  flip_y = 1;
+  imgSrc.style.transform = `rotate(${rotate}deg) scale(${flip_x}, ${flip_y})`;
+  imgSrc.style.filter = `brightness(${brightness}%) contrast(${contrast}%) saturate(${saturate}%) invert(${invert}%) blur(${blur}px)`;
 });
 
-audio.addEventListener('ended', () => {
-    animationBar.classList.remove('playing');
+save.addEventListener("click", () => {
+    let canvas = document.createElement("canvas");
+    let ctx = canvas.getContext("2d");
+    canvas.width = imgSrc.naturalWidth;
+    canvas.height = imgSrc.naturalHeight;
+    ctx.filter = `brightness(${brightness}%) contrast(${contrast}%) saturate(${saturate}%) invert(${invert}%) blur(${blur}px)`;
+    ctx.translate(canvas.width / 2, canvas.height / 2);
+    ctx.scale(flip_x, flip_y);
+    ctx.drawImage(
+      imgSrc,
+      -canvas.width / 2,
+      -canvas.height / 2,
+      canvas.width,
+      canvas.height
+    );
+    const link = document.createElement("a");
+    link.download = "image.jpg";
+    link.href = canvas.toDataURL();
+    link.click();
 });
-
-
-let currentTrackIndex = 0;
-
-function loadTrack(index) {
-    const track = tracks[index];
-    audio.src = track.src;
-    img.src = track.imgSrc
-    trackTitle.textContent = track.title;
-}
-
-function playTrack() {
-    if (audio.paused) {
-        audio.play();
-        playBtn.textContent = 'Pause';
-    } else {
-        audio.pause();
-        playBtn.textContent = 'Play';
-    }
-}
-
-
-function prevTrack() {
-    currentTrackIndex = (currentTrackIndex - 1 + tracks.length) % tracks.length;
-    loadTrack(currentTrackIndex);
-    audio.play();
-    playBtn.textContent = 'Pause';
-    
-}
-
-function nextTrack() {
-    currentTrackIndex = (currentTrackIndex + 1) % tracks.length;
-    loadTrack(currentTrackIndex);
-    audio.play();
-    playBtn.textContent = 'Pause';
-}
-
-playBtn.addEventListener('click', playTrack);
-prevBtn.addEventListener('click', prevTrack);
-nextBtn.addEventListener('click', nextTrack);
-
-audio.addEventListener('ended', nextTrack);
-
-// Load the first track initially
-loadTrack(currentTrackIndex);
